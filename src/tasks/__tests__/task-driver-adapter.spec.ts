@@ -1,41 +1,51 @@
 import {describe, expect, it} from "vitest";
 import express from "express";
 import request from "supertest";
+import {TasksResourcePath} from "../core/constants/tasks-resource.path.js";
+import type {TaskDTO} from "../core/dtos/task.dto.js";
+import {TasksController} from "../driver-adapters/tasks.controller.js";
+import tasks from "../index.js";
+
 
 describe('Tasks driver adapter tests', () => {
 
     const app = express();
-    const contentType = "Content-Type";
-    const jsonFormat = /json/;
+    const router = express.Router();
 
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     const priorityOptionsRegex = /high|medium|low/i;
 
+    app.use(express.json());
+    TasksController(app, router);
+
+
+
     describe('Tasks driver adapter - get', () => {
 
-        it('get /tasks route should return a collection of TaskDTO', async () => {
+        it('get /tasks route should return a collection of TaskDTO', async (done) => {
 
             const response = await request(app)
-                .get(TasksResourcePath.ROOT)
-                .expect(contentType, jsonFormat)
-                .expect(expect.arrayContaining(<TaskDTO[]>[
-                    expect.objectContaining(<TaskDTO>{
-                       id: expect.any(String),
-                       title: expect.any(String),
-                       description: expect.any(String),
-                       priority: expect.any(String),
-                       complete: expect.any(Boolean),
-                    })
-                ]))
-                .expect(200);
+                .get(TasksResourcePath.RESOURCE)
+                .set('Accept', 'application/json');
 
-            for (const task of response['body']) {
+            expect(response.headers["Content-Type"]).contain(/json/);
+            expect(response.status).toEqual(200);
 
-                expect(task.id).toMatch(uuidRegex);
-                expect(task.priority).toMatch(priorityOptionsRegex);
+            expect(response.body).toEqual(expect.arrayContaining(<TaskDTO[]>[
+                expect.objectContaining(<TaskDTO>{
+                    id: expect.any(String),
+                    title: expect.any(String),
+                    description: expect.any(String),
+                    priority: expect.any(String),
+                    complete: expect.any(Boolean),
+                })
+            ]));
 
+            for (const dto of (response.body as TaskDTO[])) {
+                expect(dto.id).toMatch(uuidRegex);
+                expect(dto.title.trim()).toBeTruthy();
+                expect(dto.priority).toMatch(priorityOptionsRegex);
             }
-
         });
 
         it.todo('get /tasks route should return an empty collection TaskDTO if nothing exists on the data provider');
