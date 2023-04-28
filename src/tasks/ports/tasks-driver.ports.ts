@@ -2,4 +2,5 @@ import type {TaskDTO} from "../core/dtos/task.dto.js";
 
 export interface TasksDriverPorts {
     getAll(): Promise<TaskDTO[]>;
+    getById(id: string): Promise<TaskDTO | null>;
 }

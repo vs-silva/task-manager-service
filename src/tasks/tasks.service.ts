@@ -10,7 +10,19 @@ export function TasksService(reader: TasksReaderDrivenPorts): TasksDriverPorts {
         return await TasksMapperService.mapToTasksDTOCollection(entities);
     }
 
+    async function getById(id: string): Promise<TaskDTO | null> {
+        const entity = await reader.getById(id);
+
+        if(!entity) {
+            return null;
+        }
+
+        const result = await TasksMapperService.mapToTasksDTOCollection([entity]);
+        return result[0];
+    }
+
     return {
-        getAll
+        getAll,
+        getById
     };
 }
