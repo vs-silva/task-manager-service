@@ -36,6 +36,9 @@ describe('Task services tests', () => {
 
         });
 
+        it.todo('Task.getById should return a TaskDTO if the provided task id exists');
+        it.todo('Task.getById should return null if the provided task id does not exists');
+
     });
 
 });
