@@ -1,9 +1,10 @@
 import type {TasksDriverPorts} from "./ports/tasks-driver.ports.js";
 import type {TaskDTO} from "./core/dtos/task.dto.js";
 import type {TasksReaderDrivenPorts} from "./ports/tasks-reader-driven.ports.js";
+import type {TasksWriterDrivenPorts} from "./ports/tasks-writer-driven.ports.js";
 import {TasksMapperService} from "./core/services/mapper/tasks-mapper.service.js";
 
-export function TasksService(reader: TasksReaderDrivenPorts): TasksDriverPorts {
+export function TasksService(reader: TasksReaderDrivenPorts, writer: TasksWriterDrivenPorts): TasksDriverPorts {
 
     async function getAll(): Promise<TaskDTO[]> {
         const entities = await reader.getAll();
@@ -21,8 +22,14 @@ export function TasksService(reader: TasksReaderDrivenPorts): TasksDriverPorts {
         return result[0];
     }
 
+    async function createTask(dto: TaskDTO): Promise<void> {
+        const entity = await TasksMapperService.mapToTaskEntity(dto);
+        return await writer.save(entity);
+    }
+
     return {
         getAll,
-        getById
+        getById,
+        createTask
     };
 }

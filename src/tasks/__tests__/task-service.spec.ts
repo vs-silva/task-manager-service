@@ -2,6 +2,7 @@ import {describe, expect, it, vi} from "vitest";
 import Tasks from "../index.js";
 import type {TaskDTO} from "../core/dtos/task.dto.js";
 import {faker} from "@faker-js/faker";
+import {TaskPriorityConstants} from "../core/constants/task-priority.constants.js";
 
 describe('Task services tests', () => {
 
@@ -41,11 +42,11 @@ describe('Task services tests', () => {
 
         it('Task.getById should return a TaskDTO if the provided task id exists', async () => {
 
-            const entities = await Tasks.getAll();
-            const id = entities[0].id;
+            const taskDTOS = await Tasks.getAll();
+            const id = taskDTOS[0].id;
 
             const spy = vi.spyOn(Tasks, 'getById');
-            const result = await Tasks.getById(id);
+            const result = await Tasks.getById((id as string));
 
             expect(spy).toHaveBeenCalled();
             expect(spy).toHaveBeenCalledOnce();
@@ -66,7 +67,6 @@ describe('Task services tests', () => {
 
         });
 
-
         it('Task.getById should return null if the provided task id does not exists', async () => {
 
             const id = faker.datatype.uuid();
@@ -78,6 +78,38 @@ describe('Task services tests', () => {
             expect(spy).toHaveBeenCalledOnce();
             expect(spy).toHaveBeenCalledWith(id);
             expect(result).toBeNull();
+        });
+
+        it('Task.createTask should add new Task to the data provider', async () => {
+
+            const fakeTask: TaskDTO = {
+              id: faker.datatype.uuid(),
+              title: faker.random.words(2),
+              description: faker.random.words(10),
+              priority: TaskPriorityConstants.LOW,
+              complete: faker.datatype.boolean()
+            };
+
+            const spy = vi.spyOn(Tasks, 'createTask');
+            await Tasks.createTask(fakeTask);
+
+            expect(spy).toHaveBeenCalled();
+            expect(spy).toHaveBeenCalledOnce();
+            expect(spy).toHaveBeenCalledWith(fakeTask);
+
+            const taskDTOS = await Tasks.getAll();
+            const created = taskDTOS.find(taskDTO => taskDTO.title.trim() === fakeTask.title.trim());
+
+            expect(created).toBeTruthy();
+            expect(created?.id).toMatch(uuidRegex);
+            expect(created?.title.trim()).toBeTruthy();
+            expect(created?.priority).toMatch(priorityOptionsRegex);
+
+            expect(created?.title).toEqual(fakeTask.title);
+            expect(created?.description).toEqual(fakeTask.description);
+            expect(created?.priority).toEqual(fakeTask.priority);
+            expect(created?.complete).toEqual(fakeTask.complete);
+
         });
 
     });

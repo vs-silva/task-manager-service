@@ -1,4 +1,4 @@
-export const TasksResourcePath = {
+export const TasksResourcePathConstants = {
     RESOURCE: '/tasks',
     ROOT: '/',
     PARAM_ID: '/:id'

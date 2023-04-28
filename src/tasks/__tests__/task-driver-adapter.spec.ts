@@ -1,7 +1,7 @@
 import {describe, expect, it} from "vitest";
 import express from "express";
 import request from "supertest";
-import {TasksResourcePath} from "../core/constants/tasks-resource.path.js";
+import {TasksResourcePathConstants} from "../core/constants/tasks-resource-path.constants.js";
 import type {TaskDTO} from "../core/dtos/task.dto.js";
 import {TasksController} from "../driver-adapters/tasks.controller.js";
 import {faker} from "@faker-js/faker";
@@ -24,7 +24,7 @@ describe('Tasks driver adapter tests', () => {
         it('get /tasks route should return a collection of TaskDTO', async () => {
 
             const response = await request(app)
-                .get(TasksResourcePath.RESOURCE)
+                .get(TasksResourcePathConstants.RESOURCE)
                 .set('Accept', 'application/json');
 
             expect(response.headers["Content-Type"]).contain(/json/);
@@ -52,13 +52,13 @@ describe('Tasks driver adapter tests', () => {
         it('get /tasks/:id route should return a TaskDTO', async () => {
 
             const allTasksResponse = await request(app)
-                .get(TasksResourcePath.RESOURCE)
+                .get(TasksResourcePathConstants.RESOURCE)
                 .set('Accept', 'application/json');
 
             const id = allTasksResponse.body[0].id;
 
             const response = await request(app)
-                .get(`${TasksResourcePath.RESOURCE}/${id}`)
+                .get(`${TasksResourcePathConstants.RESOURCE}/${id}`)
                 .set('Accept', 'application/json');
 
             expect(response.headers["Content-Type"]).contain(/json/);
@@ -82,7 +82,7 @@ describe('Tasks driver adapter tests', () => {
         it('get /tasks/:id route should return null if nothing exists TaskDTO', async () => {
 
             const response = await request(app)
-                .get(`${TasksResourcePath.RESOURCE}/${faker.datatype.uuid()}`)
+                .get(`${TasksResourcePathConstants.RESOURCE}/${faker.datatype.uuid()}`)
                 .set('Accept', 'application/json');
 
             expect(response.headers["Content-Type"]).contain(/json/);

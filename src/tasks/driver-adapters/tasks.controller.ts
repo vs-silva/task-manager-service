@@ -1,15 +1,15 @@
 import {Express, Router, Request, Response} from "express";
-import {TasksResourcePath} from "../core/constants/tasks-resource.path.js";
+import {TasksResourcePathConstants} from "../core/constants/tasks-resource-path.constants.js";
 import Tasks from "../index.js";
 
 export function TasksController(app: Express, router: Router) :void {
 
     router
-        .get(TasksResourcePath.ROOT, async (req: Request, res: Response): Promise<void> => {
+        .get(TasksResourcePathConstants.ROOT, async (req: Request, res: Response): Promise<void> => {
             res.json(await Tasks.getAll());
         })
 
-        .get(TasksResourcePath.PARAM_ID, async (req: Request, res: Response): Promise<void> => {
+        .get(TasksResourcePathConstants.PARAM_ID, async (req: Request, res: Response): Promise<void> => {
 
             const {id} = req.params;
             //TODO: Add validation. Use Joi package
@@ -25,5 +25,5 @@ export function TasksController(app: Express, router: Router) :void {
         });
 
 
-    app.use(TasksResourcePath.RESOURCE, router);
+    app.use(TasksResourcePathConstants.RESOURCE, router);
 }
