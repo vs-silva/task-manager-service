@@ -4,7 +4,6 @@ import request from "supertest";
 import {TasksResourcePath} from "../core/constants/tasks-resource.path.js";
 import type {TaskDTO} from "../core/dtos/task.dto.js";
 import {TasksController} from "../driver-adapters/tasks.controller.js";
-import tasks from "../index.js";
 
 
 describe('Tasks driver adapter tests', () => {
@@ -19,10 +18,9 @@ describe('Tasks driver adapter tests', () => {
     TasksController(app, router);
 
 
-
     describe('Tasks driver adapter - get', () => {
 
-        it('get /tasks route should return a collection of TaskDTO', async (done) => {
+        it('get /tasks route should return a collection of TaskDTO', async () => {
 
             const response = await request(app)
                 .get(TasksResourcePath.RESOURCE)
@@ -37,7 +35,7 @@ describe('Tasks driver adapter tests', () => {
                     title: expect.any(String),
                     description: expect.any(String),
                     priority: expect.any(String),
-                    complete: expect.any(Boolean),
+                    complete: expect.any(Boolean)
                 })
             ]));
 
