@@ -1,4 +1,4 @@
-import {describe, expect, it, TestContext} from "vitest";
+import {describe, expect, it} from "vitest";
 import express from "express";
 import request from "supertest";
 import {TasksResourcePathConstants} from "../core/constants/tasks-resource-path.constants.js";
@@ -18,7 +18,6 @@ describe('Tasks driver adapter tests', () => {
 
     app.use(express.json());
     TasksController(app, router);
-
 
     describe('Tasks driver adapter - get', () => {
 
@@ -92,6 +91,18 @@ describe('Tasks driver adapter tests', () => {
 
         });
 
+        it('get /tasks/:id route should return bad request if invalid id provided', async () => {
+
+            const response = await request(app)
+                .get(`${TasksResourcePathConstants.RESOURCE}/${faker.datatype.uuid()}q`)
+                .set('Accept', 'application/json');
+
+            expect(response.headers["Content-Type"]).toBeUndefined();
+            expect(response.status).toEqual(400);
+            expect((response.body as string).trim()).toBeTruthy();
+
+        });
+
     });
 
     describe('Tasks driver adapter - post', async () => {
@@ -123,10 +134,25 @@ describe('Tasks driver adapter tests', () => {
 
         });
 
+        it('post /tasks route should return an error if the request DTO is not correct', async () => {
 
+            const fakeTaskDTO = <TaskDTO> {
+                title: '',
+                description: faker.random.words(5),
+                priority: TaskPriorityConstants.MEDIUM,
+                complete: false
+            };
 
+            const response = await request(app)
+                .post(TasksResourcePathConstants.RESOURCE)
+                .send(fakeTaskDTO)
+                .set('Accept', 'application/json');
 
-        it.todo('post /tasks route should return an error if the request DTO is not correct');
+            expect(response.headers["Content-Type"]).toBeUndefined();
+            expect(response.status).toEqual(400);
+            expect((response.body as string).trim()).toBeTruthy();
+
+        });
 
     });
 
