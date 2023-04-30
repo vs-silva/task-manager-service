@@ -3,4 +3,5 @@ import type {TaskEntity} from "../../entities/task.entity.js";
 
 export interface TasksMapperInterface {
     mapToTasksDTOCollection(entities: TaskEntity[]): Promise<TaskDTO[]>;
+    mapToTaskEntity(dto: TaskDTO): Promise<TaskEntity>;
 }
