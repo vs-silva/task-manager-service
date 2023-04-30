@@ -17,7 +17,15 @@ export function TasksWriterAdapter(): TasksWriterDrivenPorts {
         return;
     }
 
+    async function erase(id: string): Promise<void> {
+
+        const index = MockInMemoryDb.tasks.findIndex(task => task.id.trim() === id);
+        MockInMemoryDb.tasks.splice(index, 1);
+        return;
+    }
+
     return {
-        save
+        save,
+        erase
     };
 }

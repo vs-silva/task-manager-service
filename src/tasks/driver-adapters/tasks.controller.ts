@@ -60,6 +60,23 @@ export function TasksController(app: Express, router: Router) :void {
                     .json((error as ValidationError).details[0].message);
 
             }
+        })
+
+        .delete(TasksResourcePathConstants.PARAM_ID, async (req: Request, res: Response): Promise<void> => {
+
+            try {
+                await taskIdValidationSchema.validateAsync(req.params);
+                const {id} = req.params;
+
+                res.json(await Tasks.removeTask(id));
+
+            } catch (error) {
+
+                res
+                    .status(400)
+                    .json((error as ValidationError).details[0].message);
+            }
+
         });
 
 

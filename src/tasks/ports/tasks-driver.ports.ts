@@ -4,4 +4,5 @@ export interface TasksDriverPorts {
     getAll(): Promise<TaskDTO[]>;
     getById(id: string): Promise<TaskDTO | null>;
     createTask(dto: TaskDTO): Promise<void>;
+    removeTask(id: string): Promise<void>;
 }

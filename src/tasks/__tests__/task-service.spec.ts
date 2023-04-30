@@ -83,7 +83,6 @@ describe('Task services tests', () => {
         it('Task.createTask should add new Task to the data provider', async () => {
 
             const fakeTask: TaskDTO = {
-              id: faker.datatype.uuid(),
               title: faker.random.words(2),
               description: faker.random.words(10),
               priority: TaskPriorityConstants.LOW,
@@ -109,6 +108,58 @@ describe('Task services tests', () => {
             expect(created?.description).toEqual(fakeTask.description);
             expect(created?.priority).toEqual(fakeTask.priority);
             expect(created?.complete).toEqual(fakeTask.complete);
+
+        });
+
+        it('Tasks.removeTask should remove a existent Task entity from the data provider', async () => {
+
+            const fakeTask: TaskDTO = {
+                title: faker.random.words(3),
+                description: faker.random.words(6),
+                priority: TaskPriorityConstants.MEDIUM,
+                complete: faker.datatype.boolean()
+            };
+
+            await Tasks.createTask(fakeTask);
+            const fetchOFAllTasksDTOs = await Tasks.getAll();
+            const created = fetchOFAllTasksDTOs.find(taskDTO => taskDTO.title.trim() === fakeTask.title.trim());
+
+            expect(created).toBeTruthy();
+            expect(created?.id).toMatch(uuidRegex);
+            expect(created?.title.trim()).toBeTruthy();
+            expect(created?.priority).toMatch(priorityOptionsRegex);
+
+            const createdTaskId = (created as TaskDTO).id;
+
+            const spy = vi.spyOn(Tasks, 'removeTask');
+            await Tasks.removeTask(createdTaskId as string);
+
+            expect(spy).toHaveBeenCalled();
+            expect(spy).toHaveBeenCalledOnce();
+            expect(spy).toHaveBeenCalledWith(createdTaskId);
+
+            const reFetchOFAllTasksDTOs = await Tasks.getAll();
+            const removedTask = reFetchOFAllTasksDTOs.find(taskDTO => taskDTO?.id?.trim() === createdTaskId?.trim());
+
+            expect(removedTask).toBeUndefined();
+        });
+
+        it('Tasks.removeTask should not remove a existent Task entity from the data provider if provided id is invalid or non-existent', async () => {
+
+            const fakeRandomId = faker.datatype.uuid();
+
+            const fetchedTasks = await Tasks.getAll();
+
+            const spy = vi.spyOn(Tasks, 'removeTask');
+            await Tasks.removeTask(fakeRandomId);
+
+            expect(spy).toHaveBeenCalled();
+            expect(spy).toHaveBeenCalledOnce();
+            expect(spy).toHaveBeenCalledWith(fakeRandomId);
+
+            const reFetchedTasks = await Tasks.getAll();
+
+            expect(reFetchedTasks.length).toEqual(fetchedTasks.length);
 
         });
 
