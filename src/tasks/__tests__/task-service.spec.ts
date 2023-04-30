@@ -163,8 +163,45 @@ describe('Task services tests', () => {
 
         });
 
-        it('Tasks.updateTask should update existent Task on the data provider');
-        it('Tasks.updateTask should return if provided taskDTO_Id is non-existent on the data provider');
+        it('Tasks.updateTask should update existent Task on the data provider', async () => {
+
+            const fakeTask: TaskDTO = {
+                title: faker.random.words(3),
+                description: faker.random.words(6),
+                priority: TaskPriorityConstants.MEDIUM,
+                complete: faker.datatype.boolean()
+            };
+
+            await Tasks.createTask(fakeTask);
+            const allTasks = await Tasks.getAll();
+            const created = allTasks.find(taskDTO => taskDTO.title.trim() === fakeTask.title.trim());
+
+            expect(created).toBeTruthy();
+            expect(created?.id).toMatch(uuidRegex);
+
+            const newTitle = faker.random.words(5);
+            const newDescription = faker.random.words(20);
+
+            (created as TaskDTO).title = newTitle;
+            (created as TaskDTO).description = newDescription;
+
+            const spy = vi.spyOn(Tasks, 'updateTask');
+            await Tasks.updateTask((created as TaskDTO).id as string, (created as TaskDTO));
+
+            expect(spy).toHaveBeenCalled();
+            expect(spy).toHaveBeenCalledOnce();
+            expect(spy).toHaveBeenCalledWith((created as TaskDTO).id, (created as TaskDTO));
+
+            const updatedTask = await Tasks.getById((created as TaskDTO).id as string);
+
+            expect(updatedTask).toBeTruthy();
+            expect(updatedTask?.title).toEqual(newTitle);
+            expect(updatedTask?.description).toEqual(newDescription);
+
+        });
+
+
+        it.todo('Tasks.updateTask should return if provided taskDTO_Id is non-existent on the data provider');
 
     });
 
