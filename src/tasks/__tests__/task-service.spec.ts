@@ -201,7 +201,33 @@ describe('Task services tests', () => {
         });
 
 
-        it.todo('Tasks.updateTask should return if provided taskDTO_Id is non-existent on the data provider');
+        it('Tasks.updateTask should return if provided taskDTO_Id is non-existent on the data provider', async () => {
+
+            const allTasks = await Tasks.getAll();
+            const task = allTasks[0];
+
+            expect(task).toBeTruthy();
+            expect(task?.id).toMatch(uuidRegex);
+            expect(task?.title.trim()).toBeTruthy();
+            expect(task?.priority).toMatch(priorityOptionsRegex);
+
+            const newTitle = faker.random.words(2);
+            const newDescription = faker.random.words(3);
+
+            (task as TaskDTO).title = newTitle;
+            (task as TaskDTO).description = newDescription;
+
+            await Tasks.updateTask(`${task.id}3` as string, task);
+
+            const reFetchedAllTasks = await Tasks.getAll();
+            const nonUpdatedTask = reFetchedAllTasks[0];
+
+            expect(nonUpdatedTask).toBeTruthy();
+            expect((nonUpdatedTask as TaskDTO).id?.trim()).toEqual((task as TaskDTO).id?.trim());
+            expect(nonUpdatedTask.title.trim()).not.toEqual(task.title.trim());
+            expect(nonUpdatedTask.description.trim()).not.toEqual(task.description.trim());
+
+        });
 
     });
 
