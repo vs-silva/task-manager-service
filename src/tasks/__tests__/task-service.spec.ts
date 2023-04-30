@@ -112,6 +112,8 @@ describe('Task services tests', () => {
 
         });
 
+        it.todo('Tasks.removeTask should remove a existent Task entity from the data provider');
+
     });
 
 });
