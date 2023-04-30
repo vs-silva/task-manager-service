@@ -27,9 +27,21 @@ export function TasksService(reader: TasksReaderDrivenPorts, writer: TasksWriter
         return await writer.save(entity);
     }
 
+    async function removeTask(id: string): Promise<void> {
+
+        const entity = await reader.getById(id);
+
+        if(!entity) {
+            return;
+        }
+
+        return await writer.erase(id);
+    }
+
     return {
         getAll,
         getById,
-        createTask
+        createTask,
+        removeTask
     };
 }

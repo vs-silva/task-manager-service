@@ -158,7 +158,46 @@ describe('Tasks driver adapter tests', () => {
 
     describe('Tasks driver adapter - delete', async () => {
 
-        it.todo('delete /tasks/:id route should remove an existent Task of the data provider');
+        it('delete /tasks/:id route should remove an Task of the data provider if it exists', async () => {
+
+            const fakeTaskDTO = <TaskDTO> {
+                title: faker.random.words(2),
+                description: faker.random.words(10),
+                priority: TaskPriorityConstants.LOW,
+                complete: false
+            };
+
+            await request(app)
+                .post(TasksResourcePathConstants.RESOURCE)
+                .send(fakeTaskDTO)
+                .set('Accept', 'application/json');
+
+            const response = await request(app)
+                .get(TasksResourcePathConstants.RESOURCE)
+                .set('Accept', 'application/json');
+
+            const createdTask = (response.body as Array<TaskDTO>).find(task => task.title.trim() === fakeTaskDTO.title.trim());
+
+            expect(createdTask?.id).toBeTruthy();
+            expect(createdTask?.id).toMatch(uuidRegex);
+
+            const deleteResponse = await request(app)
+                .delete(`${TasksResourcePathConstants.RESOURCE}/${createdTask?.id}`)
+                .set('Accept', 'application/json');
+
+            expect(deleteResponse.headers["Content-Type"]).toBeUndefined();
+            expect(deleteResponse.status).toEqual(200);
+            expect(deleteResponse.body).toBeFalsy();
+
+            const reFetchedAllResponse = await request(app)
+                .get(TasksResourcePathConstants.RESOURCE)
+                .set('Accept', 'application/json');
+
+            const removedTask = (reFetchedAllResponse.body as Array<TaskDTO>).find(task => task.id?.trim() === createdTask?.id?.trim());
+
+            expect(removedTask).toBeUndefined();
+
+        });
 
     });
 

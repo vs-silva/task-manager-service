@@ -132,7 +132,7 @@ describe('Task services tests', () => {
             const createdTaskId = (created as TaskDTO).id;
 
             const spy = vi.spyOn(Tasks, 'removeTask');
-            await Tasks.removeTask(createdTaskId);
+            await Tasks.removeTask(createdTaskId as string);
 
             expect(spy).toHaveBeenCalled();
             expect(spy).toHaveBeenCalledOnce();
