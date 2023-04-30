@@ -1,10 +1,11 @@
-import {describe, expect, it} from "vitest";
+import {describe, expect, it, TestContext} from "vitest";
 import express from "express";
 import request from "supertest";
 import {TasksResourcePathConstants} from "../core/constants/tasks-resource-path.constants.js";
 import type {TaskDTO} from "../core/dtos/task.dto.js";
 import {TasksController} from "../driver-adapters/tasks.controller.js";
 import {faker} from "@faker-js/faker";
+import {TaskPriorityConstants} from "../core/constants/task-priority.constants.js";
 
 
 describe('Tasks driver adapter tests', () => {
@@ -95,7 +96,36 @@ describe('Tasks driver adapter tests', () => {
 
     describe('Tasks driver adapter - post', async () => {
 
-        it.todo('post /tasks route should create/add a new Task to the data provider and return void after the process is complete');
+        it('post /tasks route should create/add a new Task to the data provider and return void after the process is complete', async () => {
+
+            const fakeTaskDTO = <TaskDTO> {
+              title: faker.random.words(2),
+              description: faker.random.words(10),
+              priority: TaskPriorityConstants.LOW,
+              complete: false
+            };
+
+            const response = await request(app)
+                .post(TasksResourcePathConstants.RESOURCE)
+                .send(fakeTaskDTO)
+                .set('Accept', 'application/json');
+
+            expect(response.headers["Content-Type"]).toBeUndefined();
+            expect(response.status).toEqual(201);
+            expect(response.body).toBeFalsy();
+
+            const allTasksResponse = await request(app)
+                .get(TasksResourcePathConstants.RESOURCE)
+                .set('Accept', 'application/json');
+
+            const createdTask = (allTasksResponse.body as Array<TaskDTO>).find(task => task.title.trim() === fakeTaskDTO.title.trim());
+            expect(createdTask).toBeTruthy();
+
+        });
+
+
+
+
         it.todo('post /tasks route should return an error if the request DTO is not correct');
 
     });
