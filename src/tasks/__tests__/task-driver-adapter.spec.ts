@@ -199,7 +199,46 @@ describe('Tasks driver adapter tests', () => {
 
         });
 
+        it('delete /tasks/:id route should not remove an Task if it not existent on the data provider', async () => {
+
+            const fakeRandomId = faker.datatype.uuid();
+
+            const fetchedAll = await request(app)
+                .get(TasksResourcePathConstants.RESOURCE)
+                .set('Accept', 'application/json');
+
+            const deleteResponse = await request(app)
+                .delete(`${TasksResourcePathConstants.RESOURCE}/${fakeRandomId}`)
+                .set('Accept', 'application/json');
+
+            expect(deleteResponse.headers["Content-Type"]).toBeUndefined();
+            expect(deleteResponse.status).toEqual(200);
+            expect(deleteResponse.body).toBeFalsy();
+
+            const reFetchedAll = await request(app)
+                .get(TasksResourcePathConstants.RESOURCE)
+                .set('Accept', 'application/json');
+
+            expect(fetchedAll.body.length).toEqual(reFetchedAll.body.length);
+
+        });
+
+        it('delete /tasks/:id route should not remove an Task if provided task id is invalid', async () => {
+
+            const deleteResponse = await request(app)
+                .delete(`${TasksResourcePathConstants.RESOURCE}/${faker.datatype.uuid()}r`)
+                .set('Accept', 'application/json');
+
+            expect(deleteResponse.headers["Content-Type"]).toBeUndefined();
+            expect(deleteResponse.status).toEqual(400);
+            expect(deleteResponse.body).toBeTruthy();
+
+        });
+
+
     });
+
+
 
 
 

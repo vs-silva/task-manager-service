@@ -144,6 +144,25 @@ describe('Task services tests', () => {
             expect(removedTask).toBeUndefined();
         });
 
+        it('Tasks.removeTask should not remove a existent Task entity from the data provider if provided id is invalid or non-existent', async () => {
+
+            const fakeRandomId = faker.datatype.uuid();
+
+            const fetchedTasks = await Tasks.getAll();
+
+            const spy = vi.spyOn(Tasks, 'removeTask');
+            await Tasks.removeTask(fakeRandomId);
+
+            expect(spy).toHaveBeenCalled();
+            expect(spy).toHaveBeenCalledOnce();
+            expect(spy).toHaveBeenCalledWith(fakeRandomId);
+
+            const reFetchedTasks = await Tasks.getAll();
+
+            expect(reFetchedTasks.length).toEqual(fetchedTasks.length);
+
+        });
+
     });
 
 });
