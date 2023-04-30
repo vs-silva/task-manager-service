@@ -47,9 +47,44 @@ describe('Tasks driver adapter tests', () => {
             }
         });
 
-        it.todo('get /tasks route should return an empty collection TaskDTO if nothing exists on the data provider');
+        it('get /tasks route should return an empty collection TaskDTO if nothing exists on the data provider', async () => {
+
+            const allTasksResponse = await request(app)
+                .get(TasksResourcePathConstants.RESOURCE)
+                .set('Accept', 'application/json');
+
+            expect(allTasksResponse.body.length).toEqual(1);
+
+            const existentTaskId = (allTasksResponse.body[0] as TaskDTO).id;
+
+            console.log(existentTaskId);
+
+            await request(app)
+                .delete(`${TasksResourcePathConstants.RESOURCE}/${existentTaskId}`)
+                .set('Accept', 'application/json');
+
+            const reFetchedAllTasks = await request(app)
+                .get(TasksResourcePathConstants.RESOURCE)
+                .set('Accept', 'application/json');
+
+            expect(reFetchedAllTasks.body.length).toEqual(0);
+            expect(reFetchedAllTasks.body).toStrictEqual(expect.anything());
+
+        });
 
         it('get /tasks/:id route should return a TaskDTO', async () => {
+
+            const fakeTaskDTOToCreate = <TaskDTO> {
+                title: faker.random.words(2),
+                description: faker.random.words(10),
+                priority: TaskPriorityConstants.LOW,
+                complete: false
+            };
+
+            await request(app)
+                .post(TasksResourcePathConstants.RESOURCE)
+                .send(fakeTaskDTOToCreate)
+                .set('Accept', 'application/json');
 
             const allTasksResponse = await request(app)
                 .get(TasksResourcePathConstants.RESOURCE)
@@ -236,10 +271,7 @@ describe('Tasks driver adapter tests', () => {
         });
 
     });
-
-
-
-
+    
 
     it.todo('put /tasks/:id route should update an existent Task on the data provider');
     it.todo('put /tasks/:id route should return an error if the request DTO is not correct');
