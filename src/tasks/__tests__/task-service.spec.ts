@@ -163,6 +163,9 @@ describe('Task services tests', () => {
 
         });
 
+        it('Tasks.updateTask should update existent Task on the data provider');
+        it('Tasks.updateTask should return if provided taskDTO_Id is non-existent on the data provider');
+
     });
 
 });
