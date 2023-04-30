@@ -83,7 +83,6 @@ describe('Task services tests', () => {
         it('Task.createTask should add new Task to the data provider', async () => {
 
             const fakeTask: TaskDTO = {
-              id: faker.datatype.uuid(),
               title: faker.random.words(2),
               description: faker.random.words(10),
               priority: TaskPriorityConstants.LOW,
@@ -112,7 +111,38 @@ describe('Task services tests', () => {
 
         });
 
-        it.todo('Tasks.removeTask should remove a existent Task entity from the data provider');
+        it('Tasks.removeTask should remove a existent Task entity from the data provider', async () => {
+
+            const fakeTask: TaskDTO = {
+                title: faker.random.words(3),
+                description: faker.random.words(6),
+                priority: TaskPriorityConstants.MEDIUM,
+                complete: faker.datatype.boolean()
+            };
+
+            await Tasks.createTask(fakeTask);
+            const fetchOFAllTasksDTOs = await Tasks.getAll();
+            const created = fetchOFAllTasksDTOs.find(taskDTO => taskDTO.title.trim() === fakeTask.title.trim());
+
+            expect(created).toBeTruthy();
+            expect(created?.id).toMatch(uuidRegex);
+            expect(created?.title.trim()).toBeTruthy();
+            expect(created?.priority).toMatch(priorityOptionsRegex);
+
+            const createdTaskId = (created as TaskDTO).id;
+
+            const spy = vi.spyOn(Tasks, 'removeTask');
+            await Tasks.removeTask(createdTaskId);
+
+            expect(spy).toHaveBeenCalled();
+            expect(spy).toHaveBeenCalledOnce();
+            expect(spy).toHaveBeenCalledWith(createdTaskId);
+
+            const reFetchOFAllTasksDTOs = await Tasks.getAll();
+            const removedTask = reFetchOFAllTasksDTOs.find(taskDTO => taskDTO?.id?.trim() === createdTaskId?.trim());
+
+            expect(removedTask).toBeUndefined();
+        });
 
     });
 

@@ -156,10 +156,16 @@ describe('Tasks driver adapter tests', () => {
 
     });
 
+    describe('Tasks driver adapter - delete', async () => {
+
+        it.todo('delete /tasks/:id route should remove an existent Task of the data provider');
+
+    });
+
 
 
     it.todo('put /tasks/:id route should update an existent Task on the data provider');
     it.todo('put /tasks/:id route should return an error if the request DTO is not correct');
-    it.todo('delete /tasks/:id route should remove an existent Task of the data provider');
+
 
 });
