@@ -38,10 +38,23 @@ export function TasksService(reader: TasksReaderDrivenPorts, writer: TasksWriter
         return await writer.erase(id);
     }
 
+    async function updateTask(id: string, dto: TaskDTO): Promise<void> {
+
+        const entity = await reader.getById(id);
+
+        if(!entity) {
+            return;
+        }
+
+        const mappedEntity = await TasksMapperService.mapToTaskEntity(dto);
+        return await writer.save(Object.assign(entity, mappedEntity));
+    }
+
     return {
         getAll,
         getById,
         createTask,
-        removeTask
+        removeTask,
+        updateTask
     };
 }

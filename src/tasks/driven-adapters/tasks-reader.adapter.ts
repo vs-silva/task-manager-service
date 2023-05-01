@@ -9,7 +9,7 @@ export function TasksReaderAdapter(): TasksReaderDrivenPorts {
     }
 
     async function getById(id: string): Promise<TaskEntity | undefined> {
-       return MockInMemoryDb.tasks.find( entity => entity.id === id);
+       return MockInMemoryDb.tasks.find( (entity: TaskEntity) => entity.id === id);
     }
 
     return {

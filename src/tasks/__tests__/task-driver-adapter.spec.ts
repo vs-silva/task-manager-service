@@ -16,12 +16,35 @@ describe('Tasks driver adapter tests', () => {
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     const priorityOptionsRegex = /high|medium|low/i;
 
+    const fakeTaskDTO = <TaskDTO> {
+        title: faker.random.words(2),
+        description: faker.random.words(10),
+        priority: TaskPriorityConstants.LOW,
+        complete: false
+    };
+
     app.use(express.json());
     TasksController(app, router);
 
     describe('Tasks driver adapter - get', () => {
 
+        it('get /tasks route should return an empty collection TaskDTO if nothing exists on the data provider', async () => {
+
+            const allTasksResponse = await request(app)
+                .get(TasksResourcePathConstants.RESOURCE)
+                .set('Accept', 'application/json');
+
+            expect(allTasksResponse.body.length).toEqual(0);
+            expect(allTasksResponse.body).toStrictEqual(expect.anything());
+
+        });
+
         it('get /tasks route should return a collection of TaskDTO', async () => {
+
+            await request(app)
+                .post(TasksResourcePathConstants.RESOURCE)
+                .send(fakeTaskDTO)
+                .set('Accept', 'application/json');
 
             const response = await request(app)
                 .get(TasksResourcePathConstants.RESOURCE)
@@ -47,9 +70,19 @@ describe('Tasks driver adapter tests', () => {
             }
         });
 
-        it.todo('get /tasks route should return an empty collection TaskDTO if nothing exists on the data provider');
-
         it('get /tasks/:id route should return a TaskDTO', async () => {
+
+            const fakeTaskDTOToCreate = <TaskDTO> {
+                title: faker.random.words(2),
+                description: faker.random.words(10),
+                priority: TaskPriorityConstants.LOW,
+                complete: false
+            };
+
+            await request(app)
+                .post(TasksResourcePathConstants.RESOURCE)
+                .send(fakeTaskDTOToCreate)
+                .set('Accept', 'application/json');
 
             const allTasksResponse = await request(app)
                 .get(TasksResourcePathConstants.RESOURCE)
@@ -105,16 +138,9 @@ describe('Tasks driver adapter tests', () => {
 
     });
 
-    describe('Tasks driver adapter - post', async () => {
+    describe('Tasks driver adapter - post', () => {
 
         it('post /tasks route should create/add a new Task to the data provider and return void after the process is complete', async () => {
-
-            const fakeTaskDTO = <TaskDTO> {
-              title: faker.random.words(2),
-              description: faker.random.words(10),
-              priority: TaskPriorityConstants.LOW,
-              complete: false
-            };
 
             const response = await request(app)
                 .post(TasksResourcePathConstants.RESOURCE)
@@ -156,7 +182,7 @@ describe('Tasks driver adapter tests', () => {
 
     });
 
-    describe('Tasks driver adapter - delete', async () => {
+    describe('Tasks driver adapter - delete', () => {
 
         it('delete /tasks/:id route should remove an Task of the data provider if it exists', async () => {
 
@@ -235,15 +261,71 @@ describe('Tasks driver adapter tests', () => {
 
         });
 
-
     });
 
+    describe('Tasks driver adapter - put', () => {
 
+        it('put /tasks/:id route should update an existent Task on the data provider', async () => {
 
+            const toCreateFakeDTO = <TaskDTO> {
+                title: faker.random.words(1),
+                description: faker.random.words(4),
+                priority: TaskPriorityConstants.HIGH,
+                complete: false
+            };
 
+            await request(app)
+                .post(TasksResourcePathConstants.RESOURCE)
+                .send(toCreateFakeDTO)
+                .set('Accept', 'application/json');
 
-    it.todo('put /tasks/:id route should update an existent Task on the data provider');
-    it.todo('put /tasks/:id route should return an error if the request DTO is not correct');
+            const response = await request(app)
+                .get(TasksResourcePathConstants.RESOURCE)
+                .set('Accept', 'application/json');
 
+            const createdTask = (response.body as Array<TaskDTO>).find(task => task.title.trim() === toCreateFakeDTO.title.trim());
+
+            const newTitle = faker.random.words(5);
+            const newDescription = faker.random.words(20);
+
+            (createdTask as TaskDTO).title = newTitle;
+            (createdTask as TaskDTO).description = newDescription;
+
+            const updateResponse = await request(app)
+                .put(`${TasksResourcePathConstants.RESOURCE}/${(createdTask as TaskDTO).id}`)
+                .send(createdTask)
+                .set('Accept', 'application/json');
+
+            expect(updateResponse.headers["Content-Type"]).toBeUndefined();
+            expect(updateResponse.status).toEqual(200);
+            expect(updateResponse.body).toBeFalsy();
+
+        });
+
+        it('put /tasks/:id route should return an error if the any of request DTO is not correct', async () => {
+
+            const allTasks = await request(app)
+                .get(TasksResourcePathConstants.RESOURCE)
+                .set('Accept', 'application/json');
+
+            expect(allTasks.status).toEqual(200);
+            expect(allTasks.body).toBeTruthy();
+            expect(allTasks.body.length).toBeGreaterThan(0);
+
+            const taskToUpdate = allTasks.body[0];
+            taskToUpdate.title = '';
+
+            const updateResponse = await request(app)
+                .put(`${TasksResourcePathConstants.RESOURCE}/${(taskToUpdate as TaskDTO).id}`)
+                .send(taskToUpdate)
+                .set('Accept', 'application/json');
+
+            expect(updateResponse.headers["Content-Type"]).toBeUndefined();
+            expect(updateResponse.status).toEqual(400);
+            expect(updateResponse.body).toBeTruthy();
+
+        });
+
+    });
 
 });
