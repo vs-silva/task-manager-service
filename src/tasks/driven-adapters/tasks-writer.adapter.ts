@@ -6,10 +6,10 @@ export function TasksWriterAdapter(): TasksWriterDrivenPorts {
 
     async function save(entity: TaskEntity): Promise<void> {
 
-        const task = MockInMemoryDb.tasks.find(task => task.id === entity.id);
+        const task: TaskEntity | undefined = MockInMemoryDb.tasks.find( (task:TaskEntity ) => task.id === entity.id);
 
         if(!task) {
-            MockInMemoryDb.tasks.push(entity);
+            (MockInMemoryDb.tasks as TaskEntity[]).push(entity);
             return;
         }
 
@@ -19,7 +19,7 @@ export function TasksWriterAdapter(): TasksWriterDrivenPorts {
 
     async function erase(id: string): Promise<void> {
 
-        const index = MockInMemoryDb.tasks.findIndex(task => task.id.trim() === id);
+        const index = MockInMemoryDb.tasks.findIndex((task: TaskEntity ) => task.id.trim() === id);
         MockInMemoryDb.tasks.splice(index, 1);
         return;
     }
