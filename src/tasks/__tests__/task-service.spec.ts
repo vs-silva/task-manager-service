@@ -9,9 +9,29 @@ describe('Task services tests', () => {
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     const priorityOptionsRegex = /high|medium|low/i;
 
+    const fakeTask: TaskDTO = {
+        title: faker.random.words(3),
+        description: faker.random.words(6),
+        priority: TaskPriorityConstants.MEDIUM,
+        complete: faker.datatype.boolean()
+    };
+
     describe('Task services driver ports tests', () => {
 
+        it('Tasks.getAll should return an empty TaskDTO collection if no data exists on provider', async () => {
+
+            const spy = vi.spyOn(Tasks, 'getAll');
+            const result = await Tasks.getAll();
+
+            expect(spy).toHaveBeenCalled();
+            expect(spy).toHaveBeenCalledOnce();
+            expect(result.length).toEqual(0);
+
+        });
+
         it('Tasks.getAll should return a TaskDTO collection', async () => {
+
+            await Tasks.createTask(fakeTask);
 
             const spy = vi.spyOn(Tasks, 'getAll');
             const result = await Tasks.getAll();
@@ -37,8 +57,6 @@ describe('Task services tests', () => {
             }
 
         });
-
-        it.todo('Tasks.getAll should return an empty TaskDTO collection if no data exists on provider');
 
         it('Task.getById should return a TaskDTO if the provided task id exists', async () => {
 
@@ -112,13 +130,6 @@ describe('Task services tests', () => {
         });
 
         it('Tasks.removeTask should remove a existent Task entity from the data provider', async () => {
-
-            const fakeTask: TaskDTO = {
-                title: faker.random.words(3),
-                description: faker.random.words(6),
-                priority: TaskPriorityConstants.MEDIUM,
-                complete: faker.datatype.boolean()
-            };
 
             await Tasks.createTask(fakeTask);
             const fetchOFAllTasksDTOs = await Tasks.getAll();

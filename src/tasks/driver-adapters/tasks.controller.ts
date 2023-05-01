@@ -11,7 +11,8 @@ export function TasksController(app: Express, router: Router) :void {
        id: Joi.string().not().empty().guid({ version: ['uuidv4']})
     });
 
-    const taskCreateValidationSchema = Joi.object().keys({
+    const taskCreateUpdateValidationSchema = Joi.object().keys({
+        id: Joi.string().guid({ version: ['uuidv4']}).allow('').optional(),
         title: Joi.string().not().empty(),
         description: Joi.string(),
         priority: Joi.string().pattern(priorityOptionsRegex),
@@ -47,11 +48,30 @@ export function TasksController(app: Express, router: Router) :void {
         .post(TasksResourcePathConstants.ROOT, async (req: Request, res: Response): Promise<void> => {
 
             try {
-                await taskCreateValidationSchema.validateAsync(req.body);
+                await taskCreateUpdateValidationSchema.validateAsync(req.body);
 
                 res
                     .status(201)
                     .json(await Tasks.createTask(req.body));
+
+            } catch (error) {
+
+                res
+                    .status(400)
+                    .json((error as ValidationError).details[0].message);
+
+            }
+        })
+
+        .put(TasksResourcePathConstants.PARAM_ID, async (req: Request, res: Response): Promise<void> => {
+
+            try {
+                await taskIdValidationSchema.validateAsync(req.params);
+                await taskCreateUpdateValidationSchema.validateAsync(req.body);
+
+                res
+                    .status(200)
+                    .json(await Tasks.updateTask(req.params.id, req.body));
 
             } catch (error) {
 

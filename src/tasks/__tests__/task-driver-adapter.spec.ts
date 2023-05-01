@@ -16,12 +16,35 @@ describe('Tasks driver adapter tests', () => {
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     const priorityOptionsRegex = /high|medium|low/i;
 
+    const fakeTaskDTO = <TaskDTO> {
+        title: faker.random.words(2),
+        description: faker.random.words(10),
+        priority: TaskPriorityConstants.LOW,
+        complete: false
+    };
+
     app.use(express.json());
     TasksController(app, router);
 
     describe('Tasks driver adapter - get', () => {
 
+        it('get /tasks route should return an empty collection TaskDTO if nothing exists on the data provider', async () => {
+
+            const allTasksResponse = await request(app)
+                .get(TasksResourcePathConstants.RESOURCE)
+                .set('Accept', 'application/json');
+
+            expect(allTasksResponse.body.length).toEqual(0);
+            expect(allTasksResponse.body).toStrictEqual(expect.anything());
+
+        });
+
         it('get /tasks route should return a collection of TaskDTO', async () => {
+
+            await request(app)
+                .post(TasksResourcePathConstants.RESOURCE)
+                .send(fakeTaskDTO)
+                .set('Accept', 'application/json');
 
             const response = await request(app)
                 .get(TasksResourcePathConstants.RESOURCE)
@@ -45,31 +68,6 @@ describe('Tasks driver adapter tests', () => {
                 expect(dto.title.trim()).toBeTruthy();
                 expect(dto.priority).toMatch(priorityOptionsRegex);
             }
-        });
-
-        it('get /tasks route should return an empty collection TaskDTO if nothing exists on the data provider', async () => {
-
-            const allTasksResponse = await request(app)
-                .get(TasksResourcePathConstants.RESOURCE)
-                .set('Accept', 'application/json');
-
-            expect(allTasksResponse.body.length).toEqual(1);
-
-            const existentTaskId = (allTasksResponse.body[0] as TaskDTO).id;
-
-            console.log(existentTaskId);
-
-            await request(app)
-                .delete(`${TasksResourcePathConstants.RESOURCE}/${existentTaskId}`)
-                .set('Accept', 'application/json');
-
-            const reFetchedAllTasks = await request(app)
-                .get(TasksResourcePathConstants.RESOURCE)
-                .set('Accept', 'application/json');
-
-            expect(reFetchedAllTasks.body.length).toEqual(0);
-            expect(reFetchedAllTasks.body).toStrictEqual(expect.anything());
-
         });
 
         it('get /tasks/:id route should return a TaskDTO', async () => {
@@ -143,13 +141,6 @@ describe('Tasks driver adapter tests', () => {
     describe('Tasks driver adapter - post', () => {
 
         it('post /tasks route should create/add a new Task to the data provider and return void after the process is complete', async () => {
-
-            const fakeTaskDTO = <TaskDTO> {
-              title: faker.random.words(2),
-              description: faker.random.words(10),
-              priority: TaskPriorityConstants.LOW,
-              complete: false
-            };
 
             const response = await request(app)
                 .post(TasksResourcePathConstants.RESOURCE)
@@ -311,7 +302,29 @@ describe('Tasks driver adapter tests', () => {
 
         });
 
-        it.todo('put /tasks/:id route should return an error if the request DTO is not correct');
+        it('put /tasks/:id route should return an error if the any of request DTO is not correct', async () => {
+
+            const allTasks = await request(app)
+                .get(TasksResourcePathConstants.RESOURCE)
+                .set('Accept', 'application/json');
+
+            expect(allTasks.status).toEqual(200);
+            expect(allTasks.body).toBeTruthy();
+            expect(allTasks.body.length).toBeGreaterThan(0);
+
+            const taskToUpdate = allTasks.body[0];
+            taskToUpdate.title = '';
+
+            const updateResponse = await request(app)
+                .put(`${TasksResourcePathConstants.RESOURCE}/${(taskToUpdate as TaskDTO).id}`)
+                .send(taskToUpdate)
+                .set('Accept', 'application/json');
+
+            expect(updateResponse.headers["Content-Type"]).toBeUndefined();
+            expect(updateResponse.status).toEqual(400);
+            expect(updateResponse.body).toBeTruthy();
+
+        });
 
     });
 
