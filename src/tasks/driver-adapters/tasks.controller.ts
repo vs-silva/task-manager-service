@@ -20,10 +20,58 @@ export function TasksController(app: Express, router: Router) :void {
     });
 
     router
+        /**
+         * @swagger
+         * /tasks:
+         *   get:
+         *     summary: Get a list of tasks
+         *     description: Returns a list of all tasks. List can be empty
+         *     responses:
+         *       200:
+         *         description: A list of tasks. List can be empty
+         *         content:
+         *          application/json:
+         *              schema:
+         *                  type: array
+         */
         .get(TasksResourcePathConstants.ROOT, async (req: Request, res: Response): Promise<void> => {
             res.json(await Tasks.getAll());
         })
 
+        /**
+         * @swagger
+         * /tasks/{id}:
+         *   get:
+         *     summary: Get a task by id.
+         *     description: Returns a task. If provided task id does not exist it will return null. If provided task id is invalid it will return error.
+         *     parameters:
+         *      - in: path
+         *        name: id
+         *        schema:
+         *         type: string
+         *        required: true
+         *        description: The task id
+         *     responses:
+         *       200:
+         *         description: Task response by id.
+         *         content:
+         *          application/json:
+         *              schema:
+         *                  type: object
+         *       400:
+         *         description: Bad Request.
+         *         content:
+         *          application/json:
+         *              schema:
+         *                  type: string
+         *       404:
+         *         description: Not found.
+         *         content:
+         *          application/json:
+         *              schema:
+         *                  type: null
+         *
+         */
         .get(TasksResourcePathConstants.PARAM_ID, async (req: Request, res: Response): Promise<void> => {
 
             try {
@@ -45,6 +93,45 @@ export function TasksController(app: Express, router: Router) :void {
             }
         })
 
+        /**
+         * @swagger
+         * /tasks:
+         *   post:
+         *     summary: Create a new task.
+         *     requestBody:
+         *      required: true
+         *      content:
+         *       application/json:
+         *        schema:
+         *         type: object
+         *         properties:
+         *          title:
+         *           type: string
+         *           required: true
+         *          description:
+         *           type: string
+         *           required: false
+         *     responses:
+         *       200:
+         *         description: Task response by id.
+         *         content:
+         *          application/json:
+         *              schema:
+         *                  type: object
+         *       400:
+         *         description: Bad Request.
+         *         content:
+         *          application/json:
+         *              schema:
+         *                  type: string
+         *       404:
+         *         description: Not found.
+         *         content:
+         *          application/json:
+         *              schema:
+         *                  type: null
+         *
+         */
         .post(TasksResourcePathConstants.ROOT, async (req: Request, res: Response): Promise<void> => {
 
             try {
