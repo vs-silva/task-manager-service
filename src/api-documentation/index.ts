@@ -6,6 +6,7 @@ export function ApiDocumentation(app: Express): void {
 
     const swaggerDocument: swaggerJSDoc.Options = {
         definition: {
+            openapi: '3.0.0',
             info: {
                 title: 'Task Manager Services - REST API Docs',
                 version: '1.0.0',

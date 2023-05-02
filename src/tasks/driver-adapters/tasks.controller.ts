@@ -23,16 +23,41 @@ export function TasksController(app: Express, router: Router) :void {
         /**
          * @swagger
          * /tasks:
-         *   get:
-         *     summary: Get a list of tasks
-         *     description: Returns a list of all tasks. List can be empty
-         *     responses:
-         *       200:
-         *         description: A list of tasks. List can be empty
-         *         content:
-         *          application/json:
-         *              schema:
-         *                  type: array
+         *  get:
+         *      summary: Get all tasks
+         *      responses:
+         *          200:
+         *              description: Ok
+         *              content:
+         *                  application/json:
+         *                      schema:
+         *                          type: array
+         *                          items:
+         *                              type: object
+         *                              properties:
+         *                                  id:
+         *                                      type: string
+         *                                      required: true
+         *                                      example: fe56df6e-0626-4bae-99ab-16094f747a42
+         *                                  title:
+         *                                      type: string
+         *                                      required: true
+         *                                      example: lorem ipsum
+         *                                  description:
+         *                                      type: string
+         *                                      required: false
+         *                                      example: Lorem Ipsum has been the industry's standard
+         *                                  priority:
+         *                                      type: string
+         *                                      required: true
+         *                                      example: low
+         *                                  complete:
+         *                                      type: boolean
+         *                                      required: true
+         *                                      example: false
+         *
+         *          500:
+         *              description: Internal Server Error
          */
         .get(TasksResourcePathConstants.ROOT, async (req: Request, res: Response): Promise<void> => {
             res.json(await Tasks.getAll());
@@ -53,11 +78,33 @@ export function TasksController(app: Express, router: Router) :void {
          *        description: The task id
          *     responses:
          *       200:
-         *         description: Task response by id.
+         *         description: Ok.
          *         content:
          *          application/json:
          *              schema:
          *                  type: object
+         *                  properties:
+         *                                  id:
+         *                                      type: string
+         *                                      required: true
+         *                                      example: fe56df6e-0626-4bae-99ab-16094f747a42
+         *                                  title:
+         *                                      type: string
+         *                                      required: true
+         *                                      example: lorem ipsum
+         *                                  description:
+         *                                      type: string
+         *                                      required: false
+         *                                      example: Lorem Ipsum has been the industry's standard
+         *                                  priority:
+         *                                      type: string
+         *                                      required: true
+         *                                      example: low
+         *                                  complete:
+         *                                      type: boolean
+         *                                      required: true
+         *                                      example: false
+         *
          *       400:
          *         description: Bad Request.
          *         content:
