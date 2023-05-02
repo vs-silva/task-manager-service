@@ -97,39 +97,7 @@ export function TasksController(app: Express, router: Router) :void {
          * @swagger
          * /tasks:
          *   post:
-         *     summary: Create a new task.
-         *     requestBody:
-         *      required: true
-         *      content:
-         *       application/json:
-         *        schema:
-         *         type: object
-         *         properties:
-         *          title:
-         *           type: string
-         *           required: true
-         *          description:
-         *           type: string
-         *           required: false
-         *     responses:
-         *       200:
-         *         description: Task response by id.
-         *         content:
-         *          application/json:
-         *              schema:
-         *                  type: object
-         *       400:
-         *         description: Bad Request.
-         *         content:
-         *          application/json:
-         *              schema:
-         *                  type: string
-         *       404:
-         *         description: Not found.
-         *         content:
-         *          application/json:
-         *              schema:
-         *                  type: null
+         *     summary: Create a new task. Documentation soon.
          *
          */
         .post(TasksResourcePathConstants.ROOT, async (req: Request, res: Response): Promise<void> => {
@@ -150,6 +118,13 @@ export function TasksController(app: Express, router: Router) :void {
             }
         })
 
+        /**
+         * @swagger
+         * /tasks{id}:
+         *   put:
+         *     summary: Updates a existent task. Documentation soon.
+         *
+         */
         .put(TasksResourcePathConstants.PARAM_ID, async (req: Request, res: Response): Promise<void> => {
 
             try {
@@ -169,6 +144,13 @@ export function TasksController(app: Express, router: Router) :void {
             }
         })
 
+        /**
+         * @swagger
+         * /tasks{id}:
+         *   delete:
+         *     summary: Removes a existent task. Documentation soon.
+         *
+         */
         .delete(TasksResourcePathConstants.PARAM_ID, async (req: Request, res: Response): Promise<void> => {
 
             try {
