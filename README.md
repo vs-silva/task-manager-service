@@ -28,4 +28,4 @@ RESTful API for the Task Manager App
 - npm run test ( to run the available tests )
 - npm run test:cov ( to run and get the test coverage )
 
-Note. At the moment configuration for a real data provider as not been configured.
+Note. At the moment configuration for a real data provider as not been done.
