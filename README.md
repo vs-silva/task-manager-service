@@ -17,7 +17,7 @@ RESTful API for the Task Manager App
 - Javascript
 
 #### Tools
-- Build tool ( Vite )
+- Runtime ( NOdeJS )
 - Testing ( Vitest, Supertest)
 - Framework ( ExpressJS )
 - API Documentation ( Swagger )
