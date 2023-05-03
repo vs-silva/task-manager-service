@@ -12,9 +12,6 @@ export function TasksWriterAdapter(): TasksWriterDrivenPorts {
             (MockInMemoryDb.tasks as TaskEntity[]).push(entity);
             return;
         }
-
-        Object.assign(task,  entity);
-        return;
     }
 
     async function erase(id: string): Promise<void> {

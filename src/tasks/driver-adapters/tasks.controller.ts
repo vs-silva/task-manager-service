@@ -20,104 +20,59 @@ export function TasksController(app: Express, router: Router) :void {
     });
 
     router
+
         /**
-         * @swagger
+         * @openapi
          * /tasks:
-         *  get:
-         *      summary: Get all tasks
-         *      responses:
-         *          200:
-         *              description: Ok
-         *              content:
-         *                  application/json:
-         *                      schema:
-         *                          type: array
-         *                          items:
-         *                              type: object
-         *                              properties:
-         *                                  id:
-         *                                      type: string
-         *                                      required: true
-         *                                      example: fe56df6e-0626-4bae-99ab-16094f747a42
-         *                                  title:
-         *                                      type: string
-         *                                      required: true
-         *                                      example: lorem ipsum
-         *                                  description:
-         *                                      type: string
-         *                                      required: false
-         *                                      example: Lorem Ipsum has been the industry's standard
-         *                                  priority:
-         *                                      type: string
-         *                                      required: true
-         *                                      example: low
-         *                                  complete:
-         *                                      type: boolean
-         *                                      required: true
-         *                                      example: false
-         *
-         *          500:
-         *              description: Internal Server Error
+         *   get:
+         *     summary: Get all tasks
+         *     description: Returns a list of all tasks.
+         *     responses:
+         *       '200':
+         *         description: A list of tasks.
+         *         content:
+         *           application/json:
+         *             schema:
+         *               type: array
+         *               items:
+         *                 $ref: '#/components/schemas/Task'
+         *       '500':
+         *         description: Internal server error.
          */
         .get(TasksResourcePathConstants.ROOT, async (req: Request, res: Response): Promise<void> => {
             res.json(await Tasks.getAll());
         })
 
         /**
-         * @swagger
+         * @openapi
          * /tasks/{id}:
          *   get:
-         *     summary: Get a task by id.
-         *     description: Returns a task. If provided task id does not exist it will return null. If provided task id is invalid it will return error.
+         *     summary: Get a task by ID
+         *     description: Returns a single task by ID.
          *     parameters:
-         *      - in: path
-         *        name: id
-         *        schema:
-         *         type: string
-         *        required: true
-         *        description: The task id
+         *       - in: path
+         *         name: id
+         *         required: true
+         *         description: The ID of the task to retrieve.
+         *         schema:
+         *           type: string
          *     responses:
-         *       200:
-         *         description: Ok.
+         *       '200':
+         *         description: A single task.
          *         content:
-         *          application/json:
-         *              schema:
-         *                  type: object
-         *                  properties:
-         *                                  id:
-         *                                      type: string
-         *                                      required: true
-         *                                      example: fe56df6e-0626-4bae-99ab-16094f747a42
-         *                                  title:
-         *                                      type: string
-         *                                      required: true
-         *                                      example: lorem ipsum
-         *                                  description:
-         *                                      type: string
-         *                                      required: false
-         *                                      example: Lorem Ipsum has been the industry's standard
-         *                                  priority:
-         *                                      type: string
-         *                                      required: true
-         *                                      example: low
-         *                                  complete:
-         *                                      type: boolean
-         *                                      required: true
-         *                                      example: false
-         *
-         *       400:
-         *         description: Bad Request.
+         *           application/json:
+         *             schema:
+         *               $ref: '#/components/schemas/Task'
+         *       '400':
+         *         description: Bad request.
          *         content:
-         *          application/json:
-         *              schema:
-         *                  type: string
-         *       404:
-         *         description: Not found.
-         *         content:
-         *          application/json:
-         *              schema:
-         *                  type: null
-         *
+         *           application/json:
+         *             schema:
+         *               type: string
+         *       '404':
+         *         description: Task not found.
+         *       '500':
+         *         description: Internal server error.
          */
         .get(TasksResourcePathConstants.PARAM_ID, async (req: Request, res: Response): Promise<void> => {
 
@@ -141,11 +96,33 @@ export function TasksController(app: Express, router: Router) :void {
         })
 
         /**
-         * @swagger
+         * @openapi
          * /tasks:
          *   post:
-         *     summary: Create a new task. Documentation soon.
-         *
+         *     summary: Create a new task
+         *     description: Creates a new task with the specified title, description, priority and completion status
+         *     requestBody:
+         *       description: Task object that needs to be created
+         *       required: true
+         *       content:
+         *         application/json:
+         *           schema:
+         *             $ref: '#/components/schemas/NewTask'
+         *     responses:
+         *       201:
+         *         description: The newly created task
+         *       400:
+         *         description: Bad request. Invalid input provided
+         *         content:
+         *           application/json:
+         *             schema:
+         *               type: string
+         *       500:
+         *         description: Internal server error. Something went wrong on the server
+         *         content:
+         *           application/json:
+         *             schema:
+         *               type: string
          */
         .post(TasksResourcePathConstants.ROOT, async (req: Request, res: Response): Promise<void> => {
 
@@ -166,12 +143,39 @@ export function TasksController(app: Express, router: Router) :void {
         })
 
         /**
-         * @swagger
-         * /tasks{id}:
+         * @openapi
+         * /tasks/{id}:
          *   put:
-         *     summary: Updates a existent task. Documentation soon.
-         *
+         *     summary: Update a task by ID
+         *     description: Updates a task by ID and returns the updated task
+         *     parameters:
+         *       - in: path
+         *         name: id
+         *         required: true
+         *         description: The ID of the task to update
+         *         schema:
+         *           type: string
+         *           format: uuid
+         *       - in: body
+         *         name: body
+         *         required: true
+         *         description: The task object to update
+         *         schema:
+         *           $ref: '#/components/schemas/Task'
+         *     responses:
+         *       200:
+         *         description: The updated task object
+         *       400:
+         *         description: Bad request, validation failed
+         *         content:
+         *           application/json:
+         *             schema:
+         *               type: object
+         *               properties:
+         *                 message:
+         *                   type: string
          */
+
         .put(TasksResourcePathConstants.PARAM_ID, async (req: Request, res: Response): Promise<void> => {
 
             try {
@@ -192,11 +196,26 @@ export function TasksController(app: Express, router: Router) :void {
         })
 
         /**
-         * @swagger
-         * /tasks{id}:
+         * @openapi
+         * /tasks/{id}:
          *   delete:
-         *     summary: Removes a existent task. Documentation soon.
-         *
+         *     summary: Delete a task by ID
+         *     description: Deletes a single task by ID
+         *     parameters:
+         *       - in: path
+         *         name: id
+         *         required: true
+         *         description: The ID of the task to delete
+         *         schema:
+         *           type: string
+         *           format: uuid
+         *     responses:
+         *       200:
+         *         description: The task with the specified ID has been deleted
+         *       400:
+         *         description: Bad Request. The ID provided is not in the UUID format
+         *       404:
+         *         description: Task not found
          */
         .delete(TasksResourcePathConstants.PARAM_ID, async (req: Request, res: Response): Promise<void> => {
 
