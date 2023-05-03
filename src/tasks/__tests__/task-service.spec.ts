@@ -193,8 +193,12 @@ describe('Task services tests', () => {
             const newTitle = faker.random.words(5);
             const newDescription = faker.random.words(20);
 
+            expect(created?.title).not.toEqual(newTitle);
+            expect(created?.description).not.toEqual(newDescription);
+
             (created as TaskDTO).title = newTitle;
             (created as TaskDTO).description = newDescription;
+            (created as TaskDTO).priority = TaskPriorityConstants.LOW;
 
             const spy = vi.spyOn(Tasks, 'updateTask');
             await Tasks.updateTask((created as TaskDTO).id as string, (created as TaskDTO));
